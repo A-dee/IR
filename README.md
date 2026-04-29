@@ -74,7 +74,7 @@ Default credentials created by the seed script:
 
 The admin can create additional engineers and clients from the Admin Dashboard.
 
-### 5. Start the backend
+### 5. Start the backend.
 
 ```bash
 uvicorn app.main:app --reload

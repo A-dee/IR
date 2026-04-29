@@ -1,0 +1,139 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* ─── Dark Theme (default) ─── */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page-bg: linear-gradient(180deg, #000000 0%, #0a0a0a 60%, #111111 100%);
+  --panel-bg: #0a0a0a;
+  --panel-gradient: linear-gradient(180deg, #0a0a0a 0%, #111111 100%);
+  --hero-gradient: linear-gradient(135deg, #050505 0%, #111111 45%, #1a1a1a 100%);
+  --sidebar-gradient: linear-gradient(180deg, #050505 0%, #0d0d0d 100%);
+  --card-bg: rgba(255, 255, 255, 0.02);
+
+  --input-bg: #111111;
+  --input-color: #f9fafb;
+
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-muted: #c8c8c8;
+  --text-faint: #b3b3b3;
+  --text-very-faint: #aaaaaa;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-normal: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.12);
+
+  --overlay-faint: rgba(255, 255, 255, 0.02);
+  --overlay-subtle: rgba(255, 255, 255, 0.03);
+  --overlay-normal: rgba(255, 255, 255, 0.04);
+
+  --status-pending-text: #facc15;
+  --status-pending-bg: rgba(250, 204, 21, 0.12);
+  --status-pending-border: rgba(250, 204, 21, 0.28);
+  --status-pending-pill: rgba(250, 204, 21, 0.16);
+
+  --status-progress-text: #93c5fd;
+  --status-progress-bg: rgba(59, 130, 246, 0.12);
+  --status-progress-border: rgba(96, 165, 250, 0.22);
+  --status-progress-pill: rgba(59, 130, 246, 0.16);
+
+  --status-completed-text: #fca5a5;
+  --status-completed-bg: rgba(239, 68, 68, 0.12);
+  --status-completed-border: rgba(248, 113, 113, 0.22);
+  --status-completed-pill: rgba(239, 68, 68, 0.16);
+
+  --status-verified-text: #86efac;
+  --status-verified-bg: rgba(34, 197, 94, 0.12);
+  --status-verified-border: rgba(134, 239, 172, 0.22);
+  --status-verified-pill: rgba(34, 197, 94, 0.16);
+
+  --error-bg: rgba(220, 38, 38, 0.14);
+  --error-border: rgba(239, 68, 68, 0.28);
+  --error-text: #fca5a5;
+  --success-bg: rgba(34, 197, 94, 0.14);
+  --success-border: rgba(34, 197, 94, 0.28);
+  --success-text: #86efac;
+
+  --logout-bg: linear-gradient(180deg, rgba(220, 38, 38, 0.2) 0%, rgba(153, 27, 27, 0.22) 100%);
+  --logout-border: rgba(239, 68, 68, 0.28);
+  --logout-text: #fca5a5;
+
+  --shadow: 0 16px 30px rgba(0, 0, 0, 0.28);
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── Light Theme ─── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --page-bg: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 60%, #e2e8f0 100%);
+  --panel-bg: #ffffff;
+  --panel-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --hero-gradient: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+  --sidebar-gradient: linear-gradient(180deg, #f1f5f9 0%, #e8edf4 100%);
+  --card-bg: rgba(0, 0, 0, 0.015);
+
+  --input-bg: #f9fafb;
+  --input-color: #111827;
+
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+  --text-very-faint: #d1d5db;
+
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-normal: rgba(0, 0, 0, 0.09);
+  --border-medium: rgba(0, 0, 0, 0.14);
+
+  --overlay-faint: rgba(0, 0, 0, 0.01);
+  --overlay-subtle: rgba(0, 0, 0, 0.025);
+  --overlay-normal: rgba(0, 0, 0, 0.035);
+
+  --status-pending-text: #92400e;
+  --status-pending-bg: rgba(234, 179, 8, 0.1);
+  --status-pending-border: rgba(234, 179, 8, 0.3);
+  --status-pending-pill: rgba(234, 179, 8, 0.14);
+
+  --status-progress-text: #1d4ed8;
+  --status-progress-bg: rgba(59, 130, 246, 0.1);
+  --status-progress-border: rgba(59, 130, 246, 0.28);
+  --status-progress-pill: rgba(59, 130, 246, 0.12);
+
+  --status-completed-text: #b91c1c;
+  --status-completed-bg: rgba(239, 68, 68, 0.1);
+  --status-completed-border: rgba(239, 68, 68, 0.28);
+  --status-completed-pill: rgba(239, 68, 68, 0.12);
+
+  --status-verified-text: #15803d;
+  --status-verified-bg: rgba(34, 197, 94, 0.1);
+  --status-verified-border: rgba(34, 197, 94, 0.28);
+  --status-verified-pill: rgba(34, 197, 94, 0.12);
+
+  --error-bg: rgba(254, 226, 226, 0.85);
+  --error-border: rgba(239, 68, 68, 0.3);
+  --error-text: #991b1b;
+  --success-bg: rgba(220, 252, 231, 0.85);
+  --success-border: rgba(34, 197, 94, 0.3);
+  --success-text: #166534;
+
+  --logout-bg: linear-gradient(180deg, rgba(254, 226, 226, 0.7) 0%, rgba(252, 165, 165, 0.2) 100%);
+  --logout-border: rgba(239, 68, 68, 0.28);
+  --logout-text: #991b1b;
+
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+}

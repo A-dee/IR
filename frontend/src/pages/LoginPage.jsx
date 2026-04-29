@@ -1,34 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-  });
-
+  const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  const isMobile = windowWidth < 768;
+
+  useEffect(() => {
+    function handleResize() { setWindowWidth(window.innerWidth); }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSubmitting(true);
-
     try {
       const user = await login(form.username, form.password);
-
       if (user.role === "admin") navigate("/admin");
       else if (user.role === "engineer") navigate("/engineer");
       else if (user.role === "client") navigate("/client");
@@ -44,110 +45,137 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #000000 0%, #0a0a0a 60%, #111111 100%)",
+        background: "var(--page-bg)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "24px",
+        padding: isMobile ? "16px" : "24px",
+        position: "relative",
       }}
     >
+      {/* Theme toggle — top right */}
+      <div style={{ position: "absolute", top: "16px", right: "16px" }}>
+        <ThemeToggle />
+      </div>
+
       <div
         style={{
           width: "100%",
           maxWidth: "1100px",
           display: "grid",
-          gridTemplateColumns: "1.1fr 0.9fr",
-          background: "#0a0a0a",
+          gridTemplateColumns: isMobile ? "1fr" : "1.1fr 0.9fr",
+          background: "var(--panel-bg)",
           border: "1px solid rgba(255,165,0,0.15)",
           borderRadius: "24px",
           overflow: "hidden",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.8)",
+          boxShadow: "var(--shadow-lg)",
         }}
       >
-        {/* LEFT PANEL */}
-        <div
-          style={{
-            padding: "48px",
-            background:
-              "linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%)",
-            color: "white",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                display: "inline-block",
-                padding: "6px 12px",
-                borderRadius: "999px",
-                background: "rgba(255,165,0,0.1)",
-                color: "#FFA500",
-                border: "1px solid rgba(255,165,0,0.3)",
-                fontSize: "12px",
-                fontWeight: "800",
-                marginBottom: "18px",
-              }}
-            >
-              BCN Incident Platform
+        {/* LEFT PANEL — hidden on mobile */}
+        {!isMobile && (
+          <div
+            style={{
+              padding: "48px",
+              background: "var(--hero-gradient)",
+              color: "var(--text-primary)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              borderRight: "1px solid rgba(255,165,0,0.1)",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "6px 12px",
+                  borderRadius: "999px",
+                  background: "rgba(255,165,0,0.1)",
+                  color: "#FFA500",
+                  border: "1px solid rgba(255,165,0,0.3)",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  marginBottom: "18px",
+                }}
+              >
+                BCN Incident Platform
+              </div>
+
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "42px",
+                  lineHeight: 1.15,
+                  fontWeight: "800",
+                  color: "var(--text-primary)",
+                }}
+              >
+                Manage incidents with speed, clarity, and control.
+              </h1>
+
+              <p
+                style={{
+                  marginTop: "18px",
+                  fontSize: "16px",
+                  lineHeight: 1.7,
+                  color: "var(--text-muted)",
+                  maxWidth: "520px",
+                }}
+              >
+                Access your workspace as an admin, engineer, or client. Track issues,
+                coordinate updates, and keep operations moving.
+              </p>
             </div>
 
-            <h1
-              style={{
-                margin: 0,
-                fontSize: "42px",
-                lineHeight: 1.15,
-                fontWeight: "800",
-              }}
-            >
-              Manage incidents with speed, clarity, and control.
-            </h1>
-
-            <p
-              style={{
-                marginTop: "18px",
-                fontSize: "16px",
-                lineHeight: 1.7,
-                color: "#d4d4d4",
-                maxWidth: "520px",
-              }}
-            >
-              Access your workspace as an admin, engineer, or client. Track issues,
-              coordinate updates, and keep operations moving.
-            </p>
+            <div style={{ display: "grid", gap: "14px", marginTop: "32px" }}>
+              <FeatureRow text="Role-based access for Admin, Engineer, and Client users" />
+              <FeatureRow text="Live incident tracking and updates" />
+              <FeatureRow text="Fast resolution workflow" />
+            </div>
           </div>
+        )}
 
-          <div style={{ display: "grid", gap: "14px", marginTop: "32px" }}>
-            <FeatureRow text="Role-based access for Admin, Engineer, and Client users" />
-            <FeatureRow text="Live incident tracking and updates" />
-            <FeatureRow text="Fast resolution workflow" />
-          </div>
-        </div>
-
-        {/* RIGHT PANEL */}
+        {/* RIGHT PANEL — login form */}
         <div
           style={{
-            padding: "48px 38px",
-            background: "#000000",
+            padding: isMobile ? "36px 24px" : "48px 38px",
+            background: "var(--panel-bg)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
           <div style={{ width: "100%", maxWidth: "400px" }}>
+            {isMobile && (
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "6px 12px",
+                  borderRadius: "999px",
+                  background: "rgba(255,165,0,0.1)",
+                  color: "#FFA500",
+                  border: "1px solid rgba(255,165,0,0.3)",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  marginBottom: "18px",
+                }}
+              >
+                BCN Incident Platform
+              </div>
+            )}
+
             <div style={{ marginBottom: "28px" }}>
               <h2
                 style={{
                   margin: 0,
-                  color: "#ffffff",
+                  color: "var(--text-primary)",
                   fontSize: "30px",
                   fontWeight: "800",
                 }}
               >
                 Login
               </h2>
-              <p style={{ marginTop: "10px", color: "#aaa" }}>
+              <p style={{ marginTop: "10px", color: "var(--text-faint)" }}>
                 Enter your credentials to continue.
               </p>
             </div>
@@ -158,9 +186,9 @@ export default function LoginPage() {
                   marginBottom: "16px",
                   padding: "12px",
                   borderRadius: "14px",
-                  background: "rgba(255,69,58,0.1)",
-                  border: "1px solid rgba(255,69,58,0.3)",
-                  color: "#ff6b6b",
+                  background: "var(--error-bg)",
+                  border: "1px solid var(--error-border)",
+                  color: "var(--error-text)",
                 }}
               >
                 {error}
@@ -204,6 +232,7 @@ export default function LoginPage() {
                     padding: "13px",
                     fontWeight: "800",
                     cursor: "pointer",
+                    fontSize: "15px",
                     boxShadow: "0 10px 25px rgba(255,165,0,0.3)",
                   }}
                 >
@@ -220,13 +249,14 @@ export default function LoginPage() {
 
 function FeatureRow({ text }) {
   return (
-    <div style={{ display: "flex", gap: "12px", color: "#e5e5e5" }}>
+    <div style={{ display: "flex", gap: "12px", alignItems: "center", color: "var(--text-secondary)" }}>
       <div
         style={{
           width: "10px",
           height: "10px",
           borderRadius: "50%",
           background: "#FFA500",
+          flexShrink: 0,
           boxShadow: "0 0 10px rgba(255,165,0,0.7)",
         }}
       />
@@ -248,7 +278,8 @@ const inputStyle = {
   padding: "13px",
   borderRadius: "14px",
   border: "1px solid rgba(255,165,0,0.2)",
-  background: "#111",
-  color: "#fff",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
   outline: "none",
+  fontSize: "14px",
 };

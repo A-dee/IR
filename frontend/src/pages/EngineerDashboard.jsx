@@ -1,9 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../lib/api";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function EngineerDashboard() {
   const { user, logout } = useAuth();
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const isMobile = windowWidth < 768;
+  const isCompact = windowWidth < 1100;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    function handleResize() { setWindowWidth(window.innerWidth); }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // =========================
   // STATE
@@ -515,23 +527,23 @@ export default function EngineerDashboard() {
     return (
       <div
         style={{
-          background: "linear-gradient(180deg, rgba(8,22,48,0.95) 0%, rgba(11,30,58,0.95) 100%)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--panel-gradient)",
+          border: "1px solid var(--border-normal)",
           borderRadius: "18px",
           padding: "20px",
-          boxShadow: "0 14px 28px rgba(0,0,0,0.22)",
+          boxShadow: "var(--shadow-sm)",
         }}
       >
         <div style={{ marginBottom: "18px" }}>
-          <h2 style={{ margin: 0, color: "#FFFFFF" }}>Settings</h2>
-          <p style={{ marginTop: "6px", color: "#93C5FD" }}>
+          <h2 style={{ margin: 0, color: "var(--text-primary)" }}>Settings</h2>
+          <p style={{ marginTop: "6px", color: "var(--text-faint)" }}>
             Manage your account settings and change your password.
           </p>
         </div>
 
         <div style={{ marginBottom: "18px" }}>
-          <h3 style={{ margin: 0, color: "#FFFFFF" }}>Change Password</h3>
-          <p style={{ marginTop: "6px", color: "#93C5FD" }}>
+          <h3 style={{ margin: 0, color: "var(--text-primary)" }}>Change Password</h3>
+          <p style={{ marginTop: "6px", color: "var(--text-faint)" }}>
             Update your account password securely.
           </p>
         </div>
@@ -630,9 +642,9 @@ export default function EngineerDashboard() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #061225 0%, #0B1E3A 55%, #0F274A 100%)",
-        color: "#E5E7EB",
-        padding: "24px",
+        background: "var(--page-bg)",
+        color: "var(--text-secondary)",
+        padding: isMobile ? "12px" : "24px",
       }}
     >
       <div style={heroStyle}>
@@ -647,57 +659,85 @@ export default function EngineerDashboard() {
         >
           <div>
             <div style={heroPillStyle}>Engineer Workspace</div>
-            <h1 style={{ margin: "14px 0 8px", fontSize: "32px", color: "#FFFFFF" }}>
+            <h1 style={{ margin: "14px 0 8px", fontSize: isMobile ? "26px" : "32px", color: "var(--text-primary)" }}>
               Engineer Dashboard
             </h1>
-            <p style={{ margin: 0, color: "#BFDBFE", lineHeight: 1.6 }}>
+            <p style={{ margin: 0, color: "var(--text-faint)", lineHeight: 1.6 }}>
               Welcome back, {user?.name || user?.username || "Engineer"}.
-              Manage incidents and account settings from one place.
             </p>
           </div>
 
-          <button onClick={logout} style={logoutButtonStyle}>
-            Logout
-          </button>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+            <ThemeToggle />
+            <button onClick={logout} style={logoutButtonStyle}>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile sidebar toggle */}
+      {isCompact && (
+        <button
+          onClick={() => setSidebarOpen((o) => !o)}
+          style={{
+            marginBottom: "14px",
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid rgba(250,204,21,0.28)",
+            background: "rgba(250,204,21,0.1)",
+            color: "#FACC15",
+            fontWeight: "700",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          {sidebarOpen ? "Close Menu ▲" : "Menu ▼"}
+        </button>
+      )}
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "260px 1fr",
+          gridTemplateColumns: isCompact ? "1fr" : "260px 1fr",
           gap: "24px",
           alignItems: "start",
         }}
       >
-        <div style={sidebarStyle}>
-          <div style={{ marginBottom: "14px" }}>
-            <h3 style={{ margin: 0, color: "#FFFFFF" }}>Menu</h3>
-            <p style={{ marginTop: "6px", color: "#93C5FD", fontSize: "14px" }}>
-              Navigate your workspace
-            </p>
+        {(!isCompact || sidebarOpen) && (
+          <div style={sidebarStyle}>
+            <div style={{ marginBottom: "14px" }}>
+              <h3 style={{ margin: 0, color: "var(--text-primary)" }}>Menu</h3>
+              <p style={{ marginTop: "6px", color: "var(--text-faint)", fontSize: "14px" }}>
+                Navigate your workspace
+              </p>
+            </div>
+
+            <div style={{ display: isCompact ? "flex" : "block", gap: "10px", flexWrap: "wrap" }}>
+              <button
+                onClick={() => { setActiveMenu("incidents"); setSidebarOpen(false); }}
+                style={{
+                  ...menuButtonStyle,
+                  ...(activeMenu === "incidents" ? activeMenuButtonStyle : {}),
+                  flex: isCompact ? "1" : undefined,
+                }}
+              >
+                Incidents
+              </button>
+
+              <button
+                onClick={() => { setActiveMenu("settings"); setSidebarOpen(false); }}
+                style={{
+                  ...menuButtonStyle,
+                  ...(activeMenu === "settings" ? activeMenuButtonStyle : {}),
+                  flex: isCompact ? "1" : undefined,
+                }}
+              >
+                Settings
+              </button>
+            </div>
           </div>
-
-          <button
-            onClick={() => setActiveMenu("incidents")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "incidents" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            Incidents
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("settings")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "settings" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            Settings
-          </button>
-        </div>
+        )}
 
         <div>
           {activeMenu === "incidents" && renderIncidentsView()}
@@ -712,18 +752,18 @@ function SummaryCard({ label, value, accent }) {
   return (
     <div
       style={{
-        background: "linear-gradient(180deg, rgba(8,22,48,0.95) 0%, rgba(11,30,58,0.95) 100%)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "var(--panel-gradient)",
+        border: "1px solid var(--border-normal)",
         borderLeft: `4px solid ${accent}`,
         borderRadius: "18px",
         padding: "18px",
-        boxShadow: "0 14px 28px rgba(0,0,0,0.22)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
-      <div style={{ fontSize: "13px", color: "#93C5FD", marginBottom: "8px" }}>
+      <div style={{ fontSize: "13px", color: "var(--text-faint)", marginBottom: "8px" }}>
         {label}
       </div>
-      <div style={{ fontSize: "28px", fontWeight: "800", color: "#FFFFFF" }}>
+      <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--text-primary)" }}>
         {value}
       </div>
     </div>
@@ -734,8 +774,8 @@ function DetailBox({ label, value }) {
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "var(--overlay-normal)",
+        border: "1px solid var(--border-normal)",
         borderRadius: "14px",
         padding: "14px",
       }}
@@ -750,19 +790,18 @@ function DetailBox({ label, value }) {
       >
         {label}
       </div>
-      <div style={{ color: "#F8FAFC", lineHeight: 1.5 }}>{value}</div>
+      <div style={{ color: "var(--text-secondary)", lineHeight: 1.5 }}>{value}</div>
     </div>
   );
 }
 
 const heroStyle = {
-  background:
-    "linear-gradient(135deg, rgba(8,22,48,0.95) 0%, rgba(17,24,39,0.95) 50%, rgba(30,58,138,0.92) 100%)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--hero-gradient)",
+  border: "1px solid var(--border-normal)",
   borderRadius: "22px",
   padding: "28px",
   marginBottom: "24px",
-  boxShadow: "0 18px 40px rgba(0,0,0,0.28)",
+  boxShadow: "var(--shadow-lg)",
 };
 
 const heroPillStyle = {
@@ -779,11 +818,11 @@ const heroPillStyle = {
 };
 
 const sidebarStyle = {
-  background: "linear-gradient(180deg, rgba(8,22,48,0.96) 0%, rgba(11,30,58,0.96) 100%)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--sidebar-gradient)",
+  border: "1px solid var(--border-normal)",
   borderRadius: "20px",
   padding: "18px",
-  boxShadow: "0 16px 32px rgba(0,0,0,0.22)",
+  boxShadow: "var(--shadow)",
   position: "sticky",
   top: "24px",
 };
@@ -794,9 +833,9 @@ const menuButtonStyle = {
   padding: "14px 16px",
   marginBottom: "10px",
   borderRadius: "12px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(255,255,255,0.04)",
-  color: "#E5E7EB",
+  border: "1px solid var(--border-normal)",
+  background: "var(--overlay-subtle)",
+  color: "var(--text-secondary)",
   fontWeight: "700",
   cursor: "pointer",
 };
@@ -808,11 +847,11 @@ const activeMenuButtonStyle = {
 };
 
 const incidentCardStyle = {
-  background: "linear-gradient(180deg, rgba(8,22,48,0.96) 0%, rgba(11,30,58,0.96) 100%)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--panel-gradient)",
+  border: "1px solid var(--border-normal)",
   borderRadius: "20px",
   padding: "20px",
-  boxShadow: "0 16px 32px rgba(0,0,0,0.22)",
+  boxShadow: "var(--shadow)",
 };
 
 const incidentIdStyle = {
@@ -834,31 +873,31 @@ const detailsGridStyle = {
 };
 
 const actionPanelStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--overlay-normal)",
+  border: "1px solid var(--border-normal)",
   borderRadius: "16px",
   padding: "16px",
 };
 
 const updateCardStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "var(--overlay-normal)",
+  border: "1px solid var(--border-normal)",
   borderRadius: "14px",
   padding: "14px",
 };
 
 const updateTextStyle = {
   margin: "6px 0",
-  color: "#E5E7EB",
+  color: "var(--text-secondary)",
 };
 
 const inputStyle = {
   width: "100%",
   padding: "12px 14px",
   borderRadius: "12px",
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(6, 18, 37, 0.92)",
-  color: "#F9FAFB",
+  border: "1px solid var(--border-medium)",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
   outline: "none",
   fontSize: "14px",
   boxSizing: "border-box",
@@ -868,9 +907,9 @@ const textareaStyle = {
   width: "100%",
   padding: "12px 14px",
   borderRadius: "12px",
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(6, 18, 37, 0.92)",
-  color: "#F9FAFB",
+  border: "1px solid var(--border-medium)",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
   outline: "none",
   fontSize: "14px",
   resize: "vertical",
@@ -918,9 +957,9 @@ const secondaryButtonStyle = {
 };
 
 const logoutButtonStyle = {
-  background: "rgba(220, 38, 38, 0.16)",
-  color: "#FCA5A5",
-  border: "1px solid rgba(239, 68, 68, 0.3)",
+  background: "var(--logout-bg)",
+  color: "var(--logout-text)",
+  border: "1px solid var(--logout-border)",
   borderRadius: "12px",
   padding: "10px 16px",
   fontWeight: "700",
@@ -928,32 +967,32 @@ const logoutButtonStyle = {
 };
 
 const infoPanelStyle = {
-  background: "rgba(37, 99, 235, 0.12)",
-  color: "#BFDBFE",
-  border: "1px solid rgba(59, 130, 246, 0.26)",
+  background: "rgba(37, 99, 235, 0.1)",
+  color: "var(--status-progress-text)",
+  border: "1px solid var(--status-progress-border)",
   borderRadius: "16px",
   padding: "16px",
 };
 
 const errorPanelStyle = {
-  background: "rgba(220, 38, 38, 0.12)",
-  color: "#FCA5A5",
-  border: "1px solid rgba(239, 68, 68, 0.26)",
+  background: "var(--error-bg)",
+  color: "var(--error-text)",
+  border: "1px solid var(--error-border)",
   borderRadius: "16px",
   padding: "16px",
 };
 
 const emptyStateStyle = {
-  background: "linear-gradient(180deg, rgba(8,22,48,0.92) 0%, rgba(11,30,58,0.92) 100%)",
-  border: "1px dashed rgba(255,255,255,0.14)",
+  background: "var(--panel-gradient)",
+  border: "1px dashed var(--border-medium)",
   borderRadius: "18px",
   padding: "24px",
 };
 
 const infoMiniStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px dashed rgba(255,255,255,0.12)",
+  background: "var(--overlay-subtle)",
+  border: "1px dashed var(--border-normal)",
   borderRadius: "12px",
   padding: "12px",
-  color: "#BFDBFE",
+  color: "var(--text-faint)",
 };

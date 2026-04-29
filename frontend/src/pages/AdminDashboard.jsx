@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../lib/api";
+import ThemeToggle from "../components/ThemeToggle";
 
 // Sidebar sections for the admin dashboard
 const sidebarItems = [
@@ -442,14 +443,7 @@ export default function AdminDashboard() {
   // =========================================================
   if (loading) {
     return (
-      <div
-        style={{
-          padding: "20px",
-          color: "#E5E7EB",
-          background: "#000000",
-          minHeight: "100vh",
-        }}
-      >
+      <div style={{ padding: "20px", color: "var(--text-secondary)", background: "var(--page-bg)", minHeight: "100vh" }}>
         Loading admin dashboard...
       </div>
     );
@@ -457,14 +451,7 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div
-        style={{
-          padding: "20px",
-          color: "#FCA5A5",
-          background: "#000000",
-          minHeight: "100vh",
-        }}
-      >
+      <div style={{ padding: "20px", color: "var(--error-text)", background: "var(--page-bg)", minHeight: "100vh" }}>
         Error: {error}
       </div>
     );
@@ -476,8 +463,8 @@ export default function AdminDashboard() {
         display: "grid",
         gridTemplateColumns: isCompact ? "1fr" : "260px 1fr",
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #000000 0%, #0a0a0a 60%, #111111 100%)",
-        color: "#E5E7EB",
+        background: "var(--page-bg)",
+        color: "var(--text-secondary)",
       }}
     >
       {/* =========================
@@ -485,12 +472,12 @@ export default function AdminDashboard() {
       ========================= */}
       <aside
         style={{
-          background: "linear-gradient(180deg, #050505 0%, #0d0d0d 100%)",
-          color: "white",
+          background: "var(--sidebar-gradient)",
+          color: "var(--text-primary)",
           padding: "24px 18px",
           borderRight: isCompact ? "none" : "1px solid rgba(255,165,0,0.14)",
           borderBottom: isCompact ? "1px solid rgba(255,165,0,0.14)" : "none",
-          boxShadow: "0 18px 36px rgba(0,0,0,0.45)",
+          boxShadow: "var(--shadow)",
         }}
       >
         <div
@@ -502,8 +489,8 @@ export default function AdminDashboard() {
             marginBottom: "22px",
           }}
         >
-          <h2 style={{ marginTop: 0, marginBottom: "6px", color: "#FFFFFF" }}>Admin Panel</h2>
-          <p style={{ fontSize: "14px", margin: 0, color: "#cfcfcf" }}>
+          <h2 style={{ marginTop: 0, marginBottom: "6px", color: "var(--text-primary)" }}>Admin Panel</h2>
+          <p style={{ fontSize: "14px", margin: 0, color: "var(--text-muted)" }}>
             {user?.username || user?.email || user?.name || "Admin"}
           </p>
         </div>
@@ -530,7 +517,7 @@ export default function AdminDashboard() {
                 background: activeView === item.key
                   ? "linear-gradient(90deg, rgba(255,165,0,0.22) 0%, rgba(255,165,0,0.08) 100%)"
                   : "rgba(255,255,255,0.03)",
-                color: activeView === item.key ? "#FFA500" : "#E5E7EB",
+                color: activeView === item.key ? "#FFA500" : "var(--text-secondary)",
                 fontWeight: activeView === item.key ? "700" : "500",
               }}
             >
@@ -539,22 +526,25 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <button
-          onClick={logout}
-          style={{
-            marginTop: "20px",
-            width: isCompact ? "100%" : "100%",
-            padding: "12px 14px",
-            borderRadius: "12px",
-            border: "1px solid rgba(239, 68, 68, 0.28)",
-            cursor: "pointer",
-            background: "linear-gradient(180deg, rgba(220, 38, 38, 0.2) 0%, rgba(153, 27, 27, 0.22) 100%)",
-            color: "#FCA5A5",
-            fontWeight: "700",
-          }}
-        >
-          Logout
-        </button>
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: isCompact ? "row" : "column", gap: "10px" }}>
+          <ThemeToggle style={{ flex: isCompact ? "none" : undefined, justifyContent: "center" }} />
+          <button
+            onClick={logout}
+            style={{
+              flex: isCompact ? "none" : undefined,
+              width: isCompact ? "auto" : "100%",
+              padding: "12px 14px",
+              borderRadius: "12px",
+              border: "1px solid var(--logout-border)",
+              cursor: "pointer",
+              background: "var(--logout-bg)",
+              color: "var(--logout-text)",
+              fontWeight: "700",
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* =========================
@@ -564,11 +554,11 @@ export default function AdminDashboard() {
         <div
           style={{
             marginBottom: "22px",
-            background: "linear-gradient(135deg, #050505 0%, #111111 45%, #1a1a1a 100%)",
+            background: "var(--hero-gradient)",
             borderRadius: "22px",
             padding: isMobile ? "20px" : "26px",
             border: "1px solid rgba(255,165,0,0.14)",
-            boxShadow: "0 18px 40px rgba(0,0,0,0.38)",
+            boxShadow: "var(--shadow-lg)",
           }}
         >
           <div
@@ -589,10 +579,10 @@ export default function AdminDashboard() {
             Control Center
           </div>
 
-          <h1 style={{ margin: "0 0 8px", color: "#FFFFFF", fontSize: isMobile ? "28px" : "36px" }}>
+          <h1 style={{ margin: "0 0 8px", color: "var(--text-primary)", fontSize: isMobile ? "28px" : "36px" }}>
             Admin Dashboard
           </h1>
-          <p style={{ margin: 0, color: "#b3b3b3", lineHeight: 1.6 }}>
+          <p style={{ margin: 0, color: "var(--text-faint)", lineHeight: 1.6 }}>
             Monitor incidents, engineers, clients, and full update history.
           </p>
         </div>
@@ -755,11 +745,11 @@ export default function AdminDashboard() {
                 gridTemplateColumns: isCompact ? "1fr" : "2fr 1fr 1fr 1fr 1fr",
                 gap: "12px",
                 marginBottom: "20px",
-                background: "#0a0a0a",
+                background: "var(--panel-bg)",
                 padding: "16px",
                 borderRadius: "16px",
                 border: "1px solid rgba(255,165,0,0.14)",
-                boxShadow: "0 14px 28px rgba(0,0,0,0.3)",
+                boxShadow: "var(--shadow)",
               }}
             >
               <input
@@ -818,23 +808,23 @@ export default function AdminDashboard() {
               {/* Incident list */}
               <section
                 style={{
-                  background: "#0a0a0a",
+                  background: "var(--panel-bg)",
                   borderRadius: "18px",
                   border: "1px solid rgba(255,165,0,0.14)",
                   padding: "16px",
                   maxHeight: isCompact ? "none" : "75vh",
                   overflowY: isCompact ? "visible" : "auto",
-                  boxShadow: "0 16px 30px rgba(0,0,0,0.28)",
+                  boxShadow: "var(--shadow)",
                 }}
               >
-                <h3 style={{ marginTop: 0, color: "#FFFFFF" }}>
+                <h3 style={{ marginTop: 0, color: "var(--text-primary)" }}>
                   {activeView === "overview"
                     ? "Incident List"
                     : sidebarItems.find((item) => item.key === activeView)?.label}
                 </h3>
 
                 {filteredIncidents.length === 0 ? (
-                  <p style={{ color: "#bdbdbd" }}>No incidents match the current filters.</p>
+                  <p style={{ color: "var(--text-faint)" }}>No incidents match the current filters.</p>
                 ) : (
                   filteredIncidents.map((incident) => {
                     const statusTheme = getStatusTheme(incident.status);
@@ -875,7 +865,7 @@ export default function AdminDashboard() {
                             flexWrap: "wrap",
                           }}
                         >
-                          <div style={{ fontWeight: "700", color: "#FFFFFF" }}>
+                          <div style={{ fontWeight: "700", color: "var(--text-primary)" }}>
                             {incident.title}
                           </div>
 
@@ -895,7 +885,7 @@ export default function AdminDashboard() {
                           </span>
                         </div>
 
-                        <div style={{ fontSize: "14px", color: "#cfcfcf", marginBottom: "4px" }}>
+                        <div style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "4px" }}>
                           {incident.location || "No location"}
                         </div>
 
@@ -915,12 +905,12 @@ export default function AdminDashboard() {
               {/* Incident details */}
               <section
                 style={{
-                  background: "#0a0a0a",
+                  background: "var(--panel-bg)",
                   borderRadius: "18px",
                   border: "1px solid rgba(255,165,0,0.14)",
                   padding: isMobile ? "16px" : "22px",
                   minHeight: isCompact ? "auto" : "75vh",
-                  boxShadow: "0 16px 30px rgba(0,0,0,0.28)",
+                  boxShadow: "var(--shadow)",
                 }}
               >
                 {!selectedIncident ? (
@@ -937,7 +927,7 @@ export default function AdminDashboard() {
                         marginBottom: "16px",
                       }}
                     >
-                      <h2 style={{ marginTop: 0, marginBottom: 0, color: "#FFFFFF", fontSize: isMobile ? "24px" : "30px" }}>
+                      <h2 style={{ marginTop: 0, marginBottom: 0, color: "var(--text-primary)", fontSize: isMobile ? "24px" : "30px" }}>
                         {selectedIncident.title}
                       </h2>
 
@@ -1084,19 +1074,18 @@ function SummaryCard({ label, value, accent = "#FFA500" }) {
   return (
     <div
       style={{
-        background: "linear-gradient(180deg, #0a0a0a 0%, #111111 100%)",
+        background: "var(--panel-gradient)",
         borderRadius: "16px",
         border: "1px solid rgba(255,165,0,0.12)",
         borderLeft: `4px solid ${accent}`,
         padding: "16px",
-        boxShadow: "0 14px 28px rgba(0,0,0,0.24)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
-      <div style={{ fontSize: "14px", color: "#c9c9c9", marginBottom: "6px" }}>
+      <div style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "6px" }}>
         {label}
       </div>
-
-      <div style={{ fontSize: "24px", fontWeight: "800", color: "#FFFFFF" }}>
+      <div style={{ fontSize: "24px", fontWeight: "800", color: "var(--text-primary)" }}>
         {value}
       </div>
     </div>
@@ -1116,25 +1105,25 @@ function DetailBox({ label, value }) {
       <div style={{ fontSize: "12px", fontWeight: "700", color: "#FFA500", marginBottom: "6px" }}>
         {label}
       </div>
-      <div style={{ color: "#F8FAFC", lineHeight: 1.5 }}>{value}</div>
+      <div style={{ color: "var(--text-secondary)", lineHeight: 1.5 }}>{value}</div>
     </div>
   );
 }
 
 const darkPanelStyle = {
-  background: "linear-gradient(180deg, #0a0a0a 0%, #111111 100%)",
+  background: "var(--panel-gradient)",
   borderRadius: "18px",
   border: "1px solid rgba(255,165,0,0.12)",
   padding: "20px",
-  boxShadow: "0 16px 30px rgba(0,0,0,0.24)",
+  boxShadow: "var(--shadow)",
 };
 
 const inputStyle = {
   padding: "12px 14px",
   borderRadius: "12px",
   border: "1px solid rgba(255,165,0,0.18)",
-  background: "#111111",
-  color: "#F9FAFB",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
   outline: "none",
   fontSize: "14px",
 };
@@ -1172,23 +1161,23 @@ const secondaryDarkButtonStyle = {
 
 const detailTextStyle = {
   margin: "6px 0",
-  color: "#E5E7EB",
+  color: "var(--text-secondary)",
 };
 
 const errorBoxStyle = {
   marginBottom: "12px",
   padding: "12px 14px",
   borderRadius: "12px",
-  background: "rgba(220, 38, 38, 0.14)",
-  color: "#FCA5A5",
-  border: "1px solid rgba(239, 68, 68, 0.28)",
+  background: "var(--error-bg)",
+  color: "var(--error-text)",
+  border: "1px solid var(--error-border)",
 };
 
 const successBoxStyle = {
   marginBottom: "12px",
   padding: "12px 14px",
   borderRadius: "12px",
-  background: "rgba(34, 197, 94, 0.14)",
-  color: "#86EFAC",
-  border: "1px solid rgba(34, 197, 94, 0.28)",
+  background: "var(--success-bg)",
+  color: "var(--success-text)",
+  border: "1px solid var(--success-border)",
 };

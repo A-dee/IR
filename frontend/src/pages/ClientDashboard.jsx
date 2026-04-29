@@ -1,9 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../lib/api";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const isMobile = windowWidth < 768;
+  const isCompact = windowWidth < 1100;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    function handleResize() { setWindowWidth(window.innerWidth); }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const clientDisplayName =
     user?.company_name ||
@@ -680,9 +692,9 @@ export default function ClientDashboard() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #050505 0%, #0B0B0B 45%, #111111 100%)",
-        color: "#E5E7EB",
-        padding: "24px",
+        background: "var(--page-bg)",
+        color: "var(--text-secondary)",
+        padding: isMobile ? "12px" : "24px",
       }}
     >
       <div style={heroStyle}>
@@ -697,7 +709,7 @@ export default function ClientDashboard() {
         >
           <div>
             <div style={heroPillStyle}>Client Workspace</div>
-            <h1 style={{ margin: "12px 0 6px", fontSize: "32px", color: "#FFFFFF" }}>
+            <h1 style={{ margin: "12px 0 6px", fontSize: isMobile ? "26px" : "32px", color: "var(--text-primary)" }}>
               Client Dashboard
             </h1>
             <p style={{ marginTop: "8px", marginBottom: 0, color: "#D4AF37" }}>
@@ -705,68 +717,74 @@ export default function ClientDashboard() {
             </p>
           </div>
 
-          <button onClick={logout} style={logoutButtonStyle}>
-            Logout
-          </button>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+            <ThemeToggle />
+            <button onClick={logout} style={logoutButtonStyle}>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile sidebar toggle */}
+      {isCompact && (
+        <button
+          onClick={() => setSidebarOpen((o) => !o)}
+          style={{
+            marginBottom: "14px",
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid rgba(212,175,55,0.3)",
+            background: "rgba(212,175,55,0.1)",
+            color: "#D4AF37",
+            fontWeight: "700",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          {sidebarOpen ? "Close Menu ▲" : "Menu ▼"}
+        </button>
+      )}
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "260px 1fr",
+          gridTemplateColumns: isCompact ? "1fr" : "260px 1fr",
           gap: "24px",
           alignItems: "start",
         }}
       >
-        <aside style={sidebarStyle}>
-          <div style={{ marginBottom: "14px" }}>
-            <h3 style={{ margin: 0, color: "#FFFFFF" }}>Menu</h3>
-            <p style={{ marginTop: "6px", color: "#C9A227", fontSize: "14px" }}>
-              Navigate your workspace
-            </p>
-          </div>
+        {(!isCompact || sidebarOpen) && (
+          <aside style={sidebarStyle}>
+            <div style={{ marginBottom: "14px" }}>
+              <h3 style={{ margin: 0, color: "var(--text-primary)" }}>Menu</h3>
+              <p style={{ marginTop: "6px", color: "var(--text-faint)", fontSize: "14px" }}>
+                Navigate your workspace
+              </p>
+            </div>
 
-          <button
-            onClick={() => setActiveMenu("create_incident")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "create_incident" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            Create Incident
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("incidents")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "incidents" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            Incidents
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("to_verify")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "to_verify" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            To Verify
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("settings")}
-            style={{
-              ...menuButtonStyle,
-              ...(activeMenu === "settings" ? activeMenuButtonStyle : {}),
-            }}
-          >
-            Settings
-          </button>
-        </aside>
+            <div style={{ display: isCompact ? "flex" : "block", gap: "10px", flexWrap: "wrap" }}>
+              {[
+                { key: "create_incident", label: "Create Incident" },
+                { key: "incidents", label: "Incidents" },
+                { key: "to_verify", label: "To Verify" },
+                { key: "settings", label: "Settings" },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => { setActiveMenu(key); setSidebarOpen(false); }}
+                  style={{
+                    ...menuButtonStyle,
+                    ...(activeMenu === key ? activeMenuButtonStyle : {}),
+                    flex: isCompact ? "1" : undefined,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </aside>
+        )}
 
         <main>
           {activeMenu === "create_incident" && renderCreateIncidentView()}
@@ -783,18 +801,18 @@ function SummaryCard({ label, value, accent }) {
   return (
     <div
       style={{
-        background: "linear-gradient(180deg, rgba(18,18,18,0.98) 0%, rgba(10,10,10,0.98) 100%)",
+        background: "var(--panel-gradient)",
         borderRadius: "18px",
         padding: "18px",
         border: "1px solid rgba(212, 175, 55, 0.18)",
         borderLeft: `4px solid ${accent}`,
-        boxShadow: "0 14px 28px rgba(0,0,0,0.35)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
       <div style={{ fontSize: "14px", color: "#C9A227", marginBottom: "8px" }}>
         {label}
       </div>
-      <div style={{ fontSize: "28px", fontWeight: "800", color: "#FFFFFF" }}>
+      <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--text-primary)" }}>
         {value}
       </div>
     </div>
@@ -805,7 +823,7 @@ function DetailItem({ label, value }) {
   return (
     <div
       style={{
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--overlay-subtle)",
         border: "1px solid rgba(212, 175, 55, 0.12)",
         borderRadius: "12px",
         padding: "14px",
@@ -821,7 +839,7 @@ function DetailItem({ label, value }) {
       >
         {label}
       </div>
-      <div style={{ color: "#F8FAFC", lineHeight: 1.5 }}>{value}</div>
+      <div style={{ color: "var(--text-secondary)", lineHeight: 1.5 }}>{value}</div>
     </div>
   );
 }
@@ -927,13 +945,12 @@ function IncidentCard({
 }
 
 const heroStyle = {
-  background:
-    "linear-gradient(135deg, rgba(10,10,10,0.98) 0%, rgba(20,20,20,0.98) 50%, rgba(35,28,10,0.98) 100%)",
+  background: "var(--hero-gradient)",
   border: "1px solid rgba(212, 175, 55, 0.18)",
   borderRadius: "22px",
   padding: "28px",
   marginBottom: "24px",
-  boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
+  boxShadow: "var(--shadow-lg)",
 };
 
 const heroPillStyle = {
@@ -950,11 +967,11 @@ const heroPillStyle = {
 };
 
 const sidebarStyle = {
-  background: "linear-gradient(180deg, rgba(12,12,12,0.98) 0%, rgba(8,8,8,0.98) 100%)",
+  background: "var(--sidebar-gradient)",
   border: "1px solid rgba(212, 175, 55, 0.16)",
   borderRadius: "20px",
   padding: "18px",
-  boxShadow: "0 16px 32px rgba(0,0,0,0.28)",
+  boxShadow: "var(--shadow)",
   position: "sticky",
   top: "24px",
 };
@@ -966,8 +983,8 @@ const menuButtonStyle = {
   marginBottom: "10px",
   borderRadius: "12px",
   border: "1px solid rgba(212, 175, 55, 0.12)",
-  background: "rgba(255,255,255,0.03)",
-  color: "#E5E7EB",
+  background: "var(--overlay-subtle)",
+  color: "var(--text-secondary)",
   fontWeight: "700",
   cursor: "pointer",
 };
@@ -979,23 +996,23 @@ const activeMenuButtonStyle = {
 };
 
 const panelStyle = {
-  background: "linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(8,8,8,0.98) 100%)",
+  background: "var(--panel-gradient)",
   borderRadius: "20px",
   padding: "22px",
   border: "1px solid rgba(212, 175, 55, 0.14)",
-  boxShadow: "0 16px 32px rgba(0,0,0,0.28)",
+  boxShadow: "var(--shadow)",
 };
 
 const incidentCardStyle = {
   border: "1px solid rgba(212, 175, 55, 0.12)",
   borderRadius: "18px",
   padding: "18px",
-  background: "rgba(255,255,255,0.02)",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.18)",
+  background: "var(--card-bg)",
+  boxShadow: "var(--shadow-sm)",
 };
 
 const updateCardStyle = {
-  background: "rgba(255,255,255,0.03)",
+  background: "var(--overlay-subtle)",
   border: "1px solid rgba(212, 175, 55, 0.12)",
   borderRadius: "12px",
   padding: "12px",
@@ -1034,8 +1051,8 @@ const inputStyle = {
   outline: "none",
   fontSize: "14px",
   boxSizing: "border-box",
-  background: "#0B0B0B",
-  color: "#F9FAFB",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
 };
 
 const textareaStyle = {
@@ -1047,8 +1064,8 @@ const textareaStyle = {
   fontSize: "14px",
   resize: "vertical",
   boxSizing: "border-box",
-  background: "#0B0B0B",
-  color: "#F9FAFB",
+  background: "var(--input-bg)",
+  color: "var(--input-color)",
 };
 
 const labelStyle = {
@@ -1090,44 +1107,43 @@ const secondaryButtonStyle = {
 };
 
 const logoutButtonStyle = {
-  background: "rgba(220, 38, 38, 0.18)",
-  color: "#FCA5A5",
-  border: "1px solid rgba(239, 68, 68, 0.38)",
+  background: "var(--logout-bg)",
+  color: "var(--logout-text)",
+  border: "1px solid var(--logout-border)",
   borderRadius: "12px",
   padding: "10px 16px",
   cursor: "pointer",
   fontWeight: "800",
-  boxShadow: "0 0 0 1px rgba(239, 68, 68, 0.1)",
 };
 
 const errorBoxStyle = {
   marginBottom: "14px",
   padding: "12px 14px",
   borderRadius: "12px",
-  background: "rgba(220, 38, 38, 0.14)",
-  border: "1px solid rgba(239, 68, 68, 0.28)",
-  color: "#FCA5A5",
+  background: "var(--error-bg)",
+  border: "1px solid var(--error-border)",
+  color: "var(--error-text)",
 };
 
 const successBoxStyle = {
   marginBottom: "14px",
   padding: "12px 14px",
   borderRadius: "12px",
-  background: "rgba(34, 197, 94, 0.14)",
-  border: "1px solid rgba(34, 197, 94, 0.28)",
-  color: "#86EFAC",
+  background: "var(--success-bg)",
+  border: "1px solid var(--success-border)",
+  color: "var(--success-text)",
 };
 
 const emptyStateStyle = {
-  border: "1px dashed rgba(212, 175, 55, 0.16)",
-  background: "rgba(255,255,255,0.02)",
+  border: "1px dashed rgba(212, 175, 55, 0.2)",
+  background: "var(--overlay-faint)",
   padding: "24px",
   borderRadius: "16px",
 };
 
 const emptyMiniStateStyle = {
-  background: "rgba(255,255,255,0.03)",
-  border: "1px dashed rgba(212, 175, 55, 0.14)",
+  background: "var(--overlay-subtle)",
+  border: "1px dashed rgba(212, 175, 55, 0.18)",
   borderRadius: "12px",
   padding: "12px",
   color: "#D4AF37",
@@ -1135,15 +1151,15 @@ const emptyMiniStateStyle = {
 
 const infoPanelStyle = {
   background: "rgba(212, 175, 55, 0.08)",
-  color: "#F5D76E",
+  color: "#D4AF37",
   border: "1px solid rgba(212, 175, 55, 0.2)",
   borderRadius: "16px",
   padding: "16px",
 };
 
 const infoMiniStyle = {
-  background: "rgba(255,255,255,0.03)",
-  border: "1px dashed rgba(212, 175, 55, 0.14)",
+  background: "var(--overlay-subtle)",
+  border: "1px dashed rgba(212, 175, 55, 0.16)",
   borderRadius: "12px",
   padding: "12px",
   color: "#D4AF37",
